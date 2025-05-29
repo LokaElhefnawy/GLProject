@@ -1,22 +1,38 @@
 <template>
   <div class="brackets-view">
     <h1 class="title">🏆 Tournament Bracket</h1>
-    <div v-for="n in 32" :key="n" class="bracket-row">
+    <div v-for="(team, index) in teams" :key="index" class="bracket-row">
+      
+      <!-- Team Image -->
       <div class="input-group">
         <label>Team Image</label>
-        <input type="file" accept="image/*" />
+        <input type="file" accept="image/*" @change="onImageChange($event, index, 'image')" />
+        <div v-if="team.imagePreview" class="image-preview">
+          <img :src="team.imagePreview" />
+          <button @click="removeImage(index, 'image')">❌</button>
+        </div>
       </div>
+
+      <!-- Team Flag -->
       <div class="input-group">
         <label>Team Flag</label>
-        <input type="file" accept="image/*" />
+        <input type="file" accept="image/*" @change="onImageChange($event, index, 'flag')" />
+        <div v-if="team.flagPreview" class="image-preview">
+          <img :src="team.flagPreview" />
+          <button @click="removeImage(index, 'flag')">❌</button>
+        </div>
       </div>
+
+      <!-- Team Name -->
       <div class="input-group">
         <label>Team Name</label>
-        <input type="text" placeholder="Team Name" />
+        <input type="text" placeholder="Team Name" v-model="team.name" />
       </div>
+
+      <!-- Team Score -->
       <div class="input-group">
         <label>Team Score</label>
-        <input type="number" placeholder="Score" />
+        <input type="number" placeholder="Score" v-model="team.score" />
       </div>
     </div>
   </div>
@@ -24,7 +40,32 @@
 
 <script>
 export default {
-  name: "BracketsView"
+  name: "BracketsView",
+  data() {
+    return {
+      teams: Array.from({ length: 32 }, () => ({
+        imagePreview: null,
+        flagPreview: null,
+        name: "",
+        score: ""
+      }))
+    };
+  },
+  methods: {
+    onImageChange(event, index, type) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          this.teams[index][`${type}Preview`] = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    removeImage(index, type) {
+      this.teams[index][`${type}Preview`] = null;
+    }
+  }
 };
 </script>
 
@@ -109,5 +150,32 @@ input[type="file"] {
 
 input[type="file"]:hover {
   background-color: #f1f1f1;
+}
+
+.image-preview {
+  position: relative;
+  margin-top: 10px;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 100px;
+  object-fit: contain;
+  border: 1px solid #fff;
+  border-radius: 6px;
+}
+
+.image-preview button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
 }
 </style>
