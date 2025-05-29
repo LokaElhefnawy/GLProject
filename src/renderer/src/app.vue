@@ -1,6 +1,6 @@
 <template>
   <div class="player-stats-view">
-    <h1 class="title">🎮 Player Stats</h1>
+    <h1 class="title">🎮 Player’s Stats</h1>
     <div class="card">
       <div
         class="input-group"
