@@ -1,38 +1,30 @@
 <template>
-  <div class="brackets-view">
-    <h1 class="title">🏆 Tournament Bracket</h1>
-    <div v-for="(team, index) in teams" :key="index" class="bracket-row">
-      
-      <!-- Team Image -->
-      <div class="input-group">
-        <label>Team Image</label>
-        <input type="file" accept="image/*" @change="onImageChange($event, index, 'image')" />
-        <div v-if="team.imagePreview" class="image-preview">
-          <img :src="team.imagePreview" />
-          <button @click="removeImage(index, 'image')">❌</button>
+  <div class="player-stats-view">
+    <h1 class="title">🎮 Player Stats</h1>
+    <div class="card">
+      <div
+        class="input-group"
+        v-for="(field, index) in fields"
+        :key="index"
+        :class="{ 'file-group': field.type === 'file' }"
+      >
+        <label :for="field.id">
+          <i class="icon">✏️</i> {{ field.label }}
+        </label>
+        <input
+          v-if="field.type !== 'file'"
+          :type="field.type"
+          :id="field.id"
+          v-model="playerStats[field.model]"
+          :placeholder="field.placeholder"
+        />
+        <div v-else>
+          <input type="file" accept="image/*" @change="onImageUpload" />
+          <div v-if="playerStats.heroImagePreview" class="image-preview">
+            <img :src="playerStats.heroImagePreview" />
+            <button @click="removeImage">✖</button>
+          </div>
         </div>
-      </div>
-
-      <!-- Team Flag -->
-      <div class="input-group">
-        <label>Team Flag</label>
-        <input type="file" accept="image/*" @change="onImageChange($event, index, 'flag')" />
-        <div v-if="team.flagPreview" class="image-preview">
-          <img :src="team.flagPreview" />
-          <button @click="removeImage(index, 'flag')">❌</button>
-        </div>
-      </div>
-
-      <!-- Team Name -->
-      <div class="input-group">
-        <label>Team Name</label>
-        <input type="text" placeholder="Team Name" v-model="team.name" />
-      </div>
-
-      <!-- Team Score -->
-      <div class="input-group">
-        <label>Team Score</label>
-        <input type="number" placeholder="Score" v-model="team.score" />
       </div>
     </div>
   </div>
@@ -40,129 +32,143 @@
 
 <script>
 export default {
-  name: "BracketsView",
+  name: "PlayerStatsView",
   data() {
     return {
-      teams: Array.from({ length: 32 }, () => ({
-        imagePreview: null,
-        flagPreview: null,
-        name: "",
-        score: ""
-      }))
+      playerStats: {
+        playerName: "",
+        teamName: "",
+        favoriteWeapon: "",
+        economyScore: null,
+        heroImagePreview: null,
+        kills: null,
+        deaths: null,
+        assists: null,
+      },
+      fields: [
+        { id: "playerName", label: "Player Name", model: "playerName", type: "text", placeholder: "e.g. Phoenix" },
+        { id: "teamName", label: "Team Name", model: "teamName", type: "text", placeholder: "e.g. Valor Kings" },
+        { id: "favoriteWeapon", label: "Favorite Weapon", model: "favoriteWeapon", type: "text", placeholder: "e.g. Vandal" },
+        { id: "economyScore", label: "Economy Score", model: "economyScore", type: "number", placeholder: "e.g. 1500" },
+        { id: "heroImage", label: "Hero Image", model: "heroImage", type: "file" },
+        { id: "kills", label: "Kills", model: "kills", type: "number", placeholder: "e.g. 22" },
+        { id: "deaths", label: "Deaths", model: "deaths", type: "number", placeholder: "e.g. 5" },
+        { id: "assists", label: "Assists", model: "assists", type: "number", placeholder: "e.g. 10" },
+      ],
     };
   },
   methods: {
-    onImageChange(event, index, type) {
-      const file = event.target.files[0];
+    onImageUpload(e) {
+      const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = e => {
-          this.teams[index][`${type}Preview`] = e.target.result;
+        reader.onload = (event) => {
+          this.playerStats.heroImagePreview = event.target.result;
         };
         reader.readAsDataURL(file);
       }
     },
-    removeImage(index, type) {
-      this.teams[index][`${type}Preview`] = null;
-    }
-  }
+    removeImage() {
+      this.playerStats.heroImagePreview = null;
+    },
+  },
 };
 </script>
 
 <style scoped>
-.brackets-view {
-  padding: 40px 20px;
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-  min-height: 100vh;
+/* Global Reset for Edge-to-Edge */
+:global(body),
+:global(html),
+.player-stats-view {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   font-family: 'Poppins', sans-serif;
   color: #fff;
 }
 
+.player-stats-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
 .title {
-  text-align: center;
   font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 40px;
-  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  margin-bottom: 30px;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.bracket-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+.card {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease-in-out;
-}
-
-.bracket-row:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(255, 138, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 30px;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
 }
 
 .input-group {
-  flex: 1 1 22%;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  margin: 5px;
-  min-width: 150px;
 }
 
 .input-group label {
-  font-size: 0.85rem;
-  margin-bottom: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  color: #ffde59;
   font-weight: 600;
-  color: #ffc107;
 }
 
-input[type="text"],
-input[type="number"] {
-  padding: 10px 12px;
-  border-radius: 6px;
+.input-group input[type="text"],
+.input-group input[type="number"] {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  background-color: #fff;
-  color: #333;
-  font-size: 0.95rem;
-  transition: box-shadow 0.2s ease;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: box-shadow 0.3s;
 }
 
-input[type="text"]:focus,
-input[type="number"]:focus {
-  box-shadow: 0 0 0 2px #ff8a00;
+.input-group input[type="text"]:focus,
+.input-group input[type="number"]:focus {
   outline: none;
+  box-shadow: 0 0 0 2px #00c6ff;
 }
 
 input[type="file"] {
-  background-color: #fff;
-  color: #444;
-  padding: 8px;
-  border-radius: 6px;
-  border: none;
-  font-size: 0.9rem;
-  cursor: pointer;
+  color: #eee;
+  background: transparent;
+  font-size: 0.95rem;
 }
 
-input[type="file"]:hover {
-  background-color: #f1f1f1;
+.file-group {
+  margin-top: 24px;
 }
 
 .image-preview {
-  position: relative;
   margin-top: 10px;
+  position: relative;
+  display: inline-block;
 }
 
 .image-preview img {
-  width: 100%;
-  max-height: 100px;
-  object-fit: contain;
-  border: 1px solid #fff;
-  border-radius: 6px;
+  max-height: 120px;
+  border-radius: 10px;
+  border: 2px solid #0072ff;
 }
 
 .image-preview button {
@@ -173,9 +179,15 @@ input[type="file"]:hover {
   border: none;
   color: white;
   border-radius: 50%;
-  font-size: 0.9rem;
   width: 24px;
   height: 24px;
+  font-weight: bold;
   cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.image-preview button:hover {
+  transform: scale(1.1);
 }
 </style>
+
