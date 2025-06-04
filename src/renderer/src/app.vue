@@ -32,7 +32,7 @@ export default {
       views: [
        { id: 'brackets', title: "Brackets", component: BracketsView },
         { id: 'player-stats', title: "Player's Stats", component: PlayerStatsView },
-        { id: 'TodaysMatchesView', title: "Todays Matches", component: TodaysMatchesView },
+        { id: 'TodaysMatchesView', title: "Today's Matches", component: TodaysMatchesView },
       ],
       currentViewId: 'player-stats',
     };
